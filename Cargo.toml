@@ -1,0 +1,44 @@
+[package]
+name = "dkls23ctl"
+version = "0.1.0"
+edition = "2021"
+description = "P2P threshold ECDSA (DKLS23) signing & keygen CLI over iroh"
+default-run = "dkls23ctl"
+
+[dependencies]
+# Core threshold-ECDSA engine (pinned to the commit we researched).
+sl-dkls23 = { git = "https://github.com/silence-laboratories/dkls23" }
+# Relay trait, MsgId, message framing. Pin to the exact version dkls23 1.0.0-beta
+# was written against so the `Relay` trait we implement matches the one it expects.
+sl-mpc-mate = { version = "=1.0.0-beta", features = ["simple-relay"] }
+# Transitive dep of sl-dkls23, pinned here so cargo doesn't pull a newer (API-breaking)
+# release: 1.1.0 added a generic param to `DLogProof` which the beta dkls23 can't build against.
+sl-oblivious = "=1.0.0-beta"
+
+# Networking: iroh QUIC transport + swarm-discovery mDNS (the iroh ecosystem's
+# local discovery crate, which also lets us enumerate peers by service name).
+iroh = "1.0.0-rc.1"
+iroh-base = "1.0.0-rc.1"
+swarm-discovery = "0.6.1"
+
+# Async runtime + stream/sink helpers for the relay.
+tokio = { version = "1", features = ["full"] }
+futures-util = { version = "0.3", features = ["sink"] }
+
+# CLI, (de)serialization, misc.
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+hex = "0.4"
+base64 = "0.22"
+sha2 = "0.10"
+rand = "0.8"
+rand_core = "0.6"
+derivation-path = "0.2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+# Not used during development (we build debug), kept for completeness.
+opt-level = 2
